@@ -1,40 +1,76 @@
-# HEAMON — evaluación experimental de señales humanas
+# HEAMON
 
-HEAMON es un prototipo web de investigación para explorar señales visuales durante una captura de 60 segundos. No es un dispositivo médico, no diagnostica fatiga o estrés y no determina aptitud para tareas operacionales.
+HEAMON es un prototipo experimental para evaluar señales humanas relevantes para la preparación operativa durante una sesión de 60 segundos. El objetivo no es diagnosticar enfermedades ni sustituir la valoración clínica o operacional; es explorar si una combinación de señales visuales puede servir como indicador preliminar de degradación del rendimiento humano.
 
-## Qué presenta
+## Enfoque de la solución
 
-- Conteo de pestañeadas y frecuencia aproximada por minuto.
-- PERCLOS: porcentaje del tiempo con ojos estimados como cerrados, sobre el tiempo en que el rostro se detectó correctamente.
-- Duración media de los cierres oculares detectados (AECD) y EAR medio.
-- Estimación exploratoria de frecuencia respiratoria mediante periodicidad de cambios de brillo en una región aproximada del torso.
-- Inclinación roll y variabilidad de posición de la cabeza como proxies 2D, no como pose clínica.
-- Valor RGB periocular informativo, excluido del índice.
-- Gráfico de la evolución de EAR y de la señal óptica del torso.
-- Resumen de sesión con un índice heurístico multivariable, cobertura y factores observados.
+HEAMON combina variables compatibles con investigación previa sobre fatiga, somnolencia y deterioro operativo:
 
-## Índice experimental y límites de interpretación
+- PERCLOS: porcentaje del tiempo con ojos cerrados durante la ventana observada.
+- Duración media de cierre ocular (AECD): tiempo medio de cada cierre detectado.
+- Frecuencia de parpadeo: tasa estimada por minuto.
+- Respiración estimada: variación óptica del torso y periodicidad detectada.
+- Inclinación y estabilidad de la cabeza: proxy de posture 2D para identificar cabeceo o inestabilidad.
+- Calidad de captura: tiempo en la cámara con detección facial válida.
 
-El resumen combina, cuando están disponibles, PERCLOS (30 %), duración de cierre (25 %), frecuencia de parpadeo (20 %), respiración (15 %) y movimiento de cabeza (10 %). Los umbrales son heurísticas de demostración, no referencias clínicas ni puntos de corte validados. Si falta una señal, el índice renormaliza los pesos disponibles y muestra cuántos componentes se usaron; si no hay datos suficientes, no calcula el índice. La cobertura describe datos observados, no es un porcentaje de confianza.
+La aplicación no utiliza el color periocular para puntuar. El RGB periocular solo se muestra como información contextual, porque la variación de iluminación, cámara y constitución individual hace que no sea un marcador fiable de fatiga por sí solo.
 
-El perfil “ocular”, “activación/movimiento” o “combinado” solo describe patrones heurísticos de señales. No diagnostica fatiga, estrés, ansiedad, somnolencia ni ninguna condición. El color bajo los ojos no se utiliza para puntuación porque cambia con iluminación, exposición, cámara y características individuales, y no permite inferir fatiga de forma fiable.
+## Qué muestra la interfaz
 
-## Ejecutar localmente
+- Tiempo restante de la sesión.
+- Número de pestañeadas y frecuencia estimada por minuto.
+- PERCLOS.
+- Duración media de cierre ocular.
+- Respiración experimental estimada.
+- Posible roll/inclinación de la cabeza y estabilidad.
+- Gráfico de evolución temporal de EAR y variación visual del torso.
+- Informe final con índice heurístico, banda de estado, factores observados y recomendación prudente.
 
-La cámara requiere un contexto seguro (`localhost` o HTTPS). Desde la raíz del repositorio:
+## Escala operativa (heurística)
+
+El sistema es un índice experimental, no clínico. La banda se diseñó como referencia de estado operativo y debe entenderse como un indicador de señales observadas, no como diagnóstico médico o certeza de fatiga.
+
+- 85–100: Óptimo
+- 70–84: Bueno
+- 50–69: Vigilancia
+- 25–49: Riesgo
+- 0–24: Crítico
+
+## Cómo ejecutar
+
+La cámara requiere HTTPS o localhost. Desde la raíz del repositorio:
 
 ```bash
 python -m http.server 8000
 ```
 
-Abre <http://localhost:8000>, concede permiso de cámara y pulsa **Iniciar análisis (60 s)**. Se requiere conexión a internet para descargar MediaPipe y el modelo desde CDN. También puede servirse desde un hosting estático con HTTPS.
+Abre <http://localhost:8000>, concede el permiso de cámara y pulsa "Iniciar análisis (60 s)".
 
-## Encuadre
+Es necesaria conexión a internet para cargar MediaPipe y el modelo del detector desde CDN.
 
-Coloca el rostro centrado y deja visible el torso/pecho en la parte inferior del cuadro. La región verde indica la zona periocular; la azul es una ROI torácica aproximada. Mantén cámara, postura e iluminación lo más estables posible. Si el rostro no se detecta, la cobertura cae; si la respiración no tiene periodicidad óptica suficiente, se excluye del índice.
+## Estructura del análisis
 
-## Privacidad y validación
+Durante la sesión de 60 segundos, el sistema:
 
-El vídeo se analiza en el navegador; esta demo no lo graba ni lo envía a un servidor. La descarga de MediaPipe/modelo requiere internet. El procesamiento de vídeo puede variar según dispositivo y navegador.
+1. Detecta el rostro con MediaPipe.
+2. Calcula EAR y cierre ocular para evaluar PERCLOS y duración media de cierre.
+3. Anota pestañeadas y su tasa por minuto.
+4. Extrae una ventana del torso para estimar respiración por variación óptica.
+5. Calcula inclinación y estabilidad de la cabeza como proxy 2D.
+6. Acumula señales para producir un índice final y un resumen de factores.
 
-Las estimaciones pueden confundirse con parpadeo normal, sequedad ocular, postura, movimiento de cámara, ropa, iluminación o cambios de exposición. Antes de interpretar los resultados como evidencia de fatiga o estrés, se necesita validación con datos de referencia, población diversa, protocolo controlado, métricas de error y revisión ética/profesional. No uses los resultados para decisiones clínicas, de seguridad o de misión.
+## Límites importantes
+
+- HEAMON no diagnostica fatiga, estrés, somnolencia ni ninguna enfermedad.
+- El sistema es un prototipo de investigación y no sustituye la supervisión humana ni la validación clínico-operacional.
+- El ruido de cámara, movimiento, luz, lentes, postura o la propia variabilidad individual puede distorsionar la estimación.
+- La respiración estimada es una señal óptica aproximada y no una medición fisiológica validada.
+- El color periocular se muestra, pero no se usa para puntuar.
+
+## Privacidad
+
+El vídeo se procesa localmente en el navegador. Esta demo no almacena ni envía vídeos a un backend.
+
+## Uso recomendado
+
+HEAMON debe entenderse como una herramienta de apoyo para estudios preliminares, validación experimental y evaluación de señales humanas en entorno controlado. Para uso formal, con decisiones relevantes de salud, seguridad o operación, se requiere un protocolo validado, referencia clínica y supervisión profesional.
