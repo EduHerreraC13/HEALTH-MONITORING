@@ -4,817 +4,272 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07111a">
-  <title>HEAMON · Evaluación experimental</title>
+  <title>HEAMON · Monitor continuo</title>
   <style>
-    :root {
-      --bg: #07111a;
-      --panel: #0e1c2d;
-      --panel2: #12283d;
-      --line: #2a405b;
-      --text: #edf6ff;
-      --muted: #a7bfd9;
-      --green: #70d6c3;
-      --cyan: #7ad0ff;
-      --amber: #ffd27a;
-      --red: #ff7d7d;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 22px 16px 42px;
-      background: var(--bg);
-      color: var(--text);
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif;
-    }
-    main { max-width: 1180px; margin: 0 auto; }
-    h1 { margin: 0; font-size: clamp(2rem, 4vw, 2.8rem); }
-    h2 { margin: 0 0 12px; font-size: 1.05rem; }
-    p { color: var(--muted); }
-    .subtitle { margin: 4px 0 18px; color: var(--muted); }
-    .notice {
-      border: 1px solid rgba(255, 210, 122, .35);
-      background: rgba(255, 210, 122, .08);
-      color: #f7dfae;
-      border-radius: 12px;
-      padding: 13px 15px;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .controls, .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    button {
-      border: 0;
-      border-radius: 9px;
-      padding: 11px 15px;
-      background: var(--green);
-      color: #06201c;
-      font: inherit;
-      font-weight: 750;
-      cursor: pointer;
-    }
-    button.secondary {
-      background: #2b3a50;
-      color: var(--text);
-    }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    #status { color: var(--muted); }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin: 16px 0;
-    }
-    .card, .panel, .report, .chartbox {
-      background: linear-gradient(180deg, var(--panel), var(--panel2));
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 15px;
-      box-shadow: 0 14px 28px #0002;
-    }
-    .label {
-      display: block;
-      color: var(--muted);
-      font-size: .76rem;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-    .value {
-      display: block;
-      margin-top: 5px;
-      font-size: 1.9rem;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-    .detail { color: var(--muted); font-size: .87rem; }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(270px, .65fr);
-      gap: 14px;
-    }
-    .camera {
-      position: relative;
-      background: #02060a;
-      min-height: 300px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .camera video {
-      display: block;
-      width: 100%;
-      height: auto;
-      min-height: 300px;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-    .camera canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      transform: scaleX(-1);
-    }
-    .side { display: grid; gap: 12px; }
-    .stats { list-style: none; padding: 0; margin: 0; }
-    .stats li {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      color: var(--muted);
-    }
-    .stats li:last-child { border: 0; }
-    .stats strong { color: var(--text); text-align: right; }
-    .chartbox { margin-top: 14px; }
-    #chart {
-      display: block;
-      width: 100%;
-      height: 220px;
-      border-radius: 9px;
-      background: #071720;
-    }
-    .legend {
-      display: flex;
-      gap: 18px;
-      color: var(--muted);
-      font-size: .84rem;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    .legend i {
-      display: inline-block;
-      width: 12px;
-      height: 3px;
-      margin: 0 7px 3px 0;
-      border-radius: 999px;
-      background: var(--green);
-      vertical-align: middle;
-    }
-    .legend .resp i { background: var(--cyan); }
-    .report {
-      margin-top: 14px;
-      display: none;
-    }
-    .report-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .report h3 { margin: 12px 0 6px; font-size: .98rem; }
-    .report ul { margin: 6px 0; padding-left: 18px; color: var(--muted); }
-    .score {
-      font-size: 2.4rem;
-      font-weight: 850;
-      color: var(--green);
-      line-height: 1.1;
-    }
-    .foot { margin-top: 14px; color: var(--muted); font-size: .86rem; }
-    @media (max-width: 850px) {
-      .layout { grid-template-columns: 1fr; }
-      .camera, .camera video { min-height: 220px; }
-    }
+    :root{color-scheme:dark;--bg:#07111a;--panel:#0e1c2d;--panel2:#12283d;--line:#2a405b;--text:#edf6ff;--muted:#a7bfd9;--green:#70d6c3;--cyan:#7ad0ff;--amber:#ffd27a;--red:#ff7d7d}
+    *{box-sizing:border-box}body{margin:0;padding:22px 16px 42px;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1200px;margin:auto}h1{margin:0;font-size:clamp(2rem,4vw,2.8rem)}h2{font-size:1.05rem;margin:0 0 12px}.subtitle{margin:4px 0 18px;color:var(--muted)}
+    .notice{border:1px solid #806c32;background:#282314;color:#f5e5ad;border-radius:12px;padding:13px 15px;margin-bottom:16px}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}button{border:0;border-radius:9px;padding:11px 15px;background:var(--green);color:#06201c;font:inherit;font-weight:750;cursor:pointer}button.secondary{background:#2b3a50;color:var(--text)}button:disabled{opacity:.5;cursor:not-allowed}#status{color:var(--muted)}
+    .section-title{margin:22px 0 10px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}.card,.panel,.report,.chartbox{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 14px 28px #0002}.label{display:block;color:var(--muted);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}.value{display:block;margin-top:5px;font-size:1.85rem;font-weight:800;line-height:1.15}.detail{color:var(--muted);font-size:.87rem}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.65fr);gap:14px}.camera{position:relative;background:#02060a;min-height:280px;border-radius:10px;overflow:hidden}.camera video{display:block;width:100%;height:auto;min-height:280px;object-fit:cover;transform:scaleX(-1)}.camera canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transform:scaleX(-1)}.side{display:grid;gap:12px}.stats{list-style:none;padding:0;margin:0}.stats li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #ffffff0d;color:var(--muted)}.stats li:last-child{border:0}.stats strong{color:var(--text);text-align:right}.chartbox{margin-top:14px}#chart{display:block;width:100%;height:210px;border-radius:9px;background:#071720}.legend{display:flex;gap:18px;color:var(--muted);font-size:.84rem;margin-top:8px;flex-wrap:wrap}.legend i{display:inline-block;width:12px;height:3px;margin:0 7px 3px 0;background:var(--green);vertical-align:middle}.legend .optical i{background:var(--cyan)}
+    .report{margin-top:14px;display:none}.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.report h3{margin:14px 0 5px;font-size:.98rem}.report ul{margin:5px 0;padding-left:20px;color:var(--muted)}.score{font-size:2.2rem;font-weight:850;color:var(--green)}.foot{margin-top:14px;color:var(--muted);font-size:.86rem}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--muted);font-size:.84rem}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.camera,.camera video{min-height:220px}}
   </style>
 </head>
 <body>
-  <main>
-    <h1>HEAMON</h1>
-    <p class="subtitle">Evaluación experimental de señales humanas · sesión de 60 segundos</p>
+<main>
+  <h1>HEAMON</h1>
+  <p class="subtitle">Monitorización continua de señales humanas · análisis comparativo en ventanas de 60 segundos</p>
+  <div class="notice"><strong>Prototipo experimental; no diagnostica ni determina aptitud para tareas.</strong> Las métricas visuales y el índice son aproximaciones heurísticas, no mediciones clínicas ni umbrales validados. Sigue los procedimientos profesionales y operacionales aplicables.</div>
 
-    <div class="notice">
-      <strong>Prototipo de investigación; no es un diagnóstico ni determina aptitud para tareas.</strong>
-      El índice y las categorías usan reglas heurísticas de demostración. El RGB periocular solo se muestra como referencia contextual y no se usa para puntuar. No utilices estas salidas para decisiones médicas u operacionales.
-    </div>
+  <section class="controls" aria-label="Controles del monitor">
+    <button id="monitorBtn" type="button">Iniciar monitor</button>
+    <button id="analysisBtn" class="secondary" type="button" disabled>Iniciar análisis (60 s)</button>
+    <button id="stopBtn" class="secondary" type="button" disabled>Detener monitor</button>
+    <span id="status" role="status" aria-live="polite">Monitor apagado · cámara requiere HTTPS o localhost.</span>
+  </section>
 
-    <section class="controls" aria-label="Controles de sesión">
-      <button id="startBtn" type="button">Iniciar análisis (60 s)</button>
-      <button id="stopBtn" class="secondary" type="button" disabled>Detener</button>
-      <span id="status" role="status" aria-live="polite">Cámara apagada · usa HTTPS o localhost.</span>
+  <h2 class="section-title">Monitor en vivo</h2>
+  <section class="cards" aria-label="Métricas continuas">
+    <article class="card"><span class="label">Monitor · parpadeos totales</span><strong class="value" id="monitorBlinks">0</strong><span class="detail">conteo desde que se inició el monitor</span></article>
+    <article class="card"><span class="label">Monitor · frecuencia</span><strong class="value" id="monitorBlinkRate">—</strong><span class="detail">pestañeadas/min · ventana móvil de 60 s</span></article>
+    <article class="card"><span class="label">Monitor · respiración</span><strong class="value" id="monitorBreath">—</strong><span class="detail" id="monitorBreathDetail">respiraciones/min · estimación óptica</span></article>
+    <article class="card"><span class="label">Monitor · PERCLOS</span><strong class="value" id="monitorPerclos">—</strong><span class="detail">% · ventana móvil de 60 s</span></article>
+    <article class="card"><span class="label">Monitor · cierre ocular medio</span><strong class="value" id="monitorAecd">—</strong><span class="detail">ms · cierres detectados en ventana móvil</span></article>
+    <article class="card"><span class="label">Monitor · EAR</span><strong class="value" id="monitorEar">—</strong><span class="detail">adimensional · relación de aspecto ocular</span></article>
+    <article class="card"><span class="label">Monitor · inclinación</span><strong class="value" id="monitorRoll">—</strong><span class="detail">grados (°) · roll 2D aproximado</span></article>
+    <article class="card"><span class="label">Monitor · movimiento cabeza</span><strong class="value" id="monitorHeadMotion">—</strong><span class="detail">desviación normalizada (adimensional)</span></article>
+    <article class="card"><span class="label">Monitor · RGB periocular</span><strong class="value" id="monitorRgb">—</strong><span class="detail">canales RGB (0–255) · excluido del índice</span></article>
+    <article class="card"><span class="label">Monitor · detección facial</span><strong class="value" id="monitorFace">—</strong><span class="detail" id="monitorFaceDetail">calidad/cobertura en ventana móvil</span></article>
+  </section>
+
+  <h2 class="section-title">Análisis y comparación</h2>
+  <section class="cards" aria-label="Estado del análisis">
+    <article class="card"><span class="label">Análisis de 60 s</span><strong class="value" id="analysisTimer">Listo</strong><span class="detail" id="analysisState">El monitor sigue activo durante el análisis</span></article>
+    <article class="card"><span class="label">Análisis · pestañeadas</span><strong class="value" id="analysisBlinks">—</strong><span class="detail">conteo independiente de la sesión</span></article>
+    <article class="card"><span class="label">Análisis · frecuencia</span><strong class="value" id="analysisBlinkRate">—</strong><span class="detail">pestañeadas/min durante el análisis</span></article>
+    <article class="card"><span class="label">Análisis · PERCLOS</span><strong class="value" id="analysisPerclos">—</strong><span class="detail">% del tiempo con rostro válido</span></article>
+    <article class="card"><span class="label">Análisis · cierre medio</span><strong class="value" id="analysisAecd">—</strong><span class="detail">ms por cierre detectado</span></article>
+  </section>
+
+  <div class="layout">
+    <section class="panel">
+      <h2>Cámara y regiones</h2>
+      <div class="camera"><video id="video" autoplay muted playsinline></video><canvas id="overlay"></canvas></div>
+      <p class="detail">Verde: región ocular. Azul: región torácica aproximada. Para la estimación respiratoria, centra el rostro y deja el pecho visible.</p>
     </section>
-
-    <section class="cards" aria-label="Métricas principales">
-      <article class="card">
-        <span class="label">Tiempo</span>
-        <strong class="value" id="timer">60 s</strong>
-        <span class="detail" id="sessionState">Listo para iniciar</span>
-      </article>
-      <article class="card">
-        <span class="label">Pestañeadas</span>
-        <strong class="value" id="blinkCount">0</strong>
-        <span class="detail" id="blinkRate">— por minuto</span>
-      </article>
-      <article class="card">
-        <span class="label">PERCLOS</span>
-        <strong class="value" id="perclos">—</strong>
-        <span class="detail">% del tiempo con ojos cerrados</span>
-      </article>
-      <article class="card">
-        <span class="label">Cierre ocular medio</span>
-        <strong class="value" id="closureDuration">—</strong>
-        <span class="detail">Duración media de cierres</span>
-      </article>
-      <article class="card">
-        <span class="label">Respiración</span>
-        <strong class="value" id="breath">—</strong>
-        <span class="detail" id="breathDetail">Señal óptica experimental</span>
-      </article>
-      <article class="card">
-        <span class="label">RGB periocular</span>
-        <strong class="value" id="skinRgb">—</strong>
-        <span class="detail">Solo se muestra como referencia</span>
-      </article>
-    </section>
-
-    <div class="layout">
+    <aside class="side">
       <section class="panel">
-        <h2>Cámara y regiones</h2>
-        <div class="camera">
-          <video id="video" autoplay muted playsinline></video>
-          <canvas id="overlay"></canvas>
-        </div>
-        <p class="detail">Verde: ROI periocular. Azul: ROI aproximada del torso. Mantén el rostro centrado y el pecho visible para mejorar la estimación respiratoria.</p>
+        <h2>Unidades y calidad</h2>
+        <ul class="stats">
+          <li><span>Respiración</span><strong>respiraciones/min</strong></li>
+          <li><span>Parpadeos</span><strong>conteo y pestañeadas/min</strong></li>
+          <li><span>PERCLOS</span><strong>porcentaje (%)</strong></li>
+          <li><span>Duración de cierre</span><strong>milisegundos (ms)</strong></li>
+          <li><span>EAR</span><strong>adimensional</strong></li>
+          <li><span>Inclinación roll</span><strong>grados (°)</strong></li>
+          <li><span>Movimiento cabeza</span><strong>desviación normalizada</strong></li>
+          <li><span>RGB periocular</span><strong>canales 0–255</strong></li>
+        </ul>
+        <p class="detail">La cobertura facial representa el porcentaje de muestras con rostro detectado; no es confianza clínica.</p>
       </section>
+      <section class="panel"><h2>Comparación</h2><p class="detail" id="comparisonStatus">El informe de cada análisis se compara con el análisis completado inmediatamente anterior en esta página.</p><span class="pill">Historial solo en memoria de la pestaña</span></section>
+    </aside>
+  </div>
 
-      <aside class="side">
-        <section class="panel">
-          <h2>Señales y postura</h2>
-          <ul class="stats">
-            <li><span>EAR medio</span><strong id="ear">—</strong></li>
-            <li><span>Roll de cabeza (proxy)</span><strong id="roll">—</strong></li>
-            <li><span>Estabilidad (proxy)</span><strong id="headMotion">—</strong></li>
-            <li><span>Cobertura facial</span><strong id="coverage">—</strong></li>
-            <li><span>Calidad de captura</span><strong id="quality">—</strong></li>
-          </ul>
-        </section>
+  <section class="chartbox"><h2>Tendencia del monitor (últimos 60 s)</h2><canvas id="chart" aria-label="Tendencia continua de EAR y brillo torácico"></canvas><div class="legend"><span><i></i>EAR (adimensional)</span><span class="optical"><i></i>Brillo ROI torácica (escala 0–255)</span></div></section>
 
-        <section class="panel">
-          <h2>Nota</h2>
-          <p class="detail">PERCLOS y duración de cierre se calculan durante la detección facial válida. La respiración es una señal óptica aproximada. La inclinación y la estabilidad son proxies 2D, no equivalen a una medición clínica.</p>
-        </section>
-      </aside>
+  <section class="report" id="report" aria-live="polite">
+    <h2>Resultado del análisis de 60 segundos</h2>
+    <div class="report-grid">
+      <div><span class="label">Índice experimental de señales</span><div class="score" id="score">—</div><div class="detail" id="scoreBand">No calculado</div></div>
+      <div><span class="label">Cobertura facial</span><div class="score" style="font-size:1.5rem" id="reportCoverage">—</div><div class="detail" id="reportComponents">—</div></div>
+      <div><span class="label">Comparación previa</span><div id="comparison"></div></div>
     </div>
+    <h3>Factores observados</h3><ul id="factors"></ul>
+    <h3>Nota interpretativa</h3><p id="recommendation"></p>
+  </section>
 
-    <section class="chartbox">
-      <h2>Evolución durante la sesión</h2>
-      <canvas id="chart" aria-label="Gráfico de EAR y variación óptica del torso"></canvas>
-      <div class="legend">
-        <span><i></i>EAR</span>
-        <span class="resp"><i></i>Variación torácica</span>
-      </div>
-    </section>
+  <p class="foot">El vídeo se procesa localmente; no se graba ni se envía. MediaPipe/modelo se descargan desde CDN. Las medidas ópticas y los valores heurísticos no deben usarse para decisiones médicas, de seguridad o misión.</p>
+</main>
+<script type="module">
+  const $ = id => document.getElementById(id);
+  const video=$('video'), overlay=$('overlay'), overlayCtx=overlay.getContext('2d');
+  const chart=$('chart'), chartCtx=chart.getContext('2d');
+  const LEFT_EYE=[33,133,159,145,153,144], RIGHT_EYE=[362,263,387,373,390,374];
+  const ANALYSIS_MS=60000, WINDOW_MS=60000, SAMPLE_MS=250, SAMPLE_HZ=4;
+  let stream=null, landmarker=null, detectorPromise=null, running=false, raf=0;
+  let monitorStart=0, previousFrameTime=0, lastSampleTime=0, lastRgbTime=0;
+  let monitorBlinks=0, monitorClosures=[], monitorClosedMs=0, monitorValidMs=0;
+  let closureStart=null, closedNow=false, eyeBaseline=null;
+  let eyeSamples=[], breathSamples=[], headSamples=[];
+  let latestBreath=null, latestRoll=null, latestMotion=null, latestRgb=null;
+  let analysis=null, analysisTimer=null, previousReport=null;
 
-    <section id="report" class="report" aria-live="polite">
-      <h2>Resumen de la sesión</h2>
-      <div class="report-grid">
-        <div>
-          <span class="label">Índice experimental</span>
-          <div class="score" id="score">—</div>
-          <div class="detail" id="scoreBand">No calculado</div>
-        </div>
-        <div>
-          <span class="label">Cobertura</span>
-          <div class="score" style="font-size:1.45rem" id="reportQuality">—</div>
-          <div class="detail" id="reportCoverage">—</div>
-        </div>
-        <div>
-          <span class="label">Perfil heurístico</span>
-          <div id="profile">—</div>
-          <div class="detail">No es una clasificación clínica.</div>
-        </div>
-      </div>
-
-      <h3>Factores observados</h3>
-      <ul id="factors"></ul>
-
-      <h3>Interpretación prudente</h3>
-      <p id="recommendation"></p>
-    </section>
-
-    <p class="foot">* Indicadores exploratorios. El vídeo se procesa localmente y no se graba ni se envía. MediaPipe se descarga desde CDN. La cámara requiere HTTPS o localhost.</p>
-  </main>
-
-  <script type="module">
-    const $ = (id) => document.getElementById(id);
-    const video = $('video');
-    const overlay = $('overlay');
-    const overlayCtx = overlay.getContext('2d');
-    const chart = $('chart');
-    const chartCtx = chart.getContext('2d');
-    const LEFT_EYE = [33, 133, 159, 145, 153, 144];
-    const RIGHT_EYE = [362, 263, 387, 373, 390, 374];
-    const SESSION_MS = 60_000;
-    const SAMPLE_RATE = 5;
-
-    let stream = null;
-    let landmarker = null;
-    let rafId = 0;
-    let running = false;
-    let sessionStart = 0;
-    let lastFrameTs = 0;
-    let faceValidMs = 0;
-    let eyesClosedMs = 0;
-    let blinkCount = 0;
-    let closureStart = null;
-    let closureDurations = [];
-    let earHistory = [];
-    let opticalHistory = [];
-    let headHistory = [];
-    let lastBrightness = null;
-    let latestBreath = null;
-    let latestRoll = null;
-    let latestHeadMotion = null;
-    let eyeOpenBaseline = null;
-    let lastColorAt = 0;
-
-    function clamp(x, min, max) { return Math.min(max, Math.max(min, x)); }
-    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-    function mean(values) { return values.length ? values.reduce((sum, v) => sum + v, 0) / values.length : null; }
-    function setStatus(text) { $('status').textContent = text; }
-
-    function faceBounds(points) {
-      const xs = points.map((p) => p.x);
-      const ys = points.map((p) => p.y);
-      return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
-    }
-
-    function computeEAR(points, eye) {
-      const p = eye.map((i) => points[i]);
-      const horizontal = dist(p[0], p[1]);
-      if (!horizontal) return 0;
-      return (dist(p[2], p[3]) + dist(p[4], p[5])) / (2 * horizontal);
-    }
-
-    function drawOverlay(points) {
-      const w = video.videoWidth || 640;
-      const h = video.videoHeight || 480;
-      overlay.width = w;
-      overlay.height = h;
-      overlayCtx.clearRect(0, 0, w, h);
-
-      const bounds = faceBounds(points);
-      const faceW = bounds.maxX - bounds.minX;
-      const faceH = bounds.maxY - bounds.minY;
-      const eyeGap = Math.abs(points[263].x - points[33].x);
-
-      const roiW = eyeGap * 0.34;
-      const roiH = faceH * 0.06;
-      const underY = (points[145].y + points[374].y) / 2 + faceH * 0.035;
-      overlayCtx.strokeStyle = '#70d6c3';
-      overlayCtx.lineWidth = Math.max(2, w / 520);
-      overlayCtx.strokeRect((points[33].x - roiW / 2) * w, underY * h, roiW * w, roiH * h);
-      overlayCtx.strokeRect((points[263].x - roiW / 2) * w, underY * h, roiW * w, roiH * h);
-
-      const chest = {
-        x: clamp((bounds.minX + bounds.maxX) / 2 - faceW * 1.1, 0, 1),
-        y: clamp(bounds.maxY + faceH * 0.15, 0, 1),
-        w: clamp(faceW * 2.2, 0.12, 0.85),
-        h: clamp(faceH * 1.1, 0.08, 0.5)
-      };
-
-      overlayCtx.strokeStyle = '#7ad0ff';
-      overlayCtx.setLineDash([7, 6]);
-      overlayCtx.strokeRect(chest.x * w, chest.y * h, chest.w * w, chest.h * h);
-      overlayCtx.setLineDash([]);
-
-      return chest;
-    }
-
-    function getFaceBlend(result, name) {
-      return result.faceBlendshapes?.[0]?.categories?.find((c) => c.categoryName === name)?.score;
-    }
-
-    async function createDetector() {
-      if (landmarker) return landmarker;
-      const { FaceLandmarker, FilesetResolver } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14');
-      const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
-      landmarker = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
-        },
-        runningMode: 'VIDEO',
-        numFaces: 1,
-        outputFaceBlendshapes: true,
-        outputFacialTransformationMatrixes: false
-      });
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  function setStatus(s){$('status').textContent=s;}
+  function bounds(points){const xs=points.map(p=>p.x),ys=points.map(p=>p.y);return{minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)}}
+  function ear(points,ids){const p=ids.map(i=>points[i]),w=dist(p[0],p[1]);return w?(dist(p[2],p[3])+dist(p[4],p[5]))/(2*w):0;}
+  function faceBlend(result,name){return result.faceBlendshapes?.[0]?.categories?.find(c=>c.categoryName===name)?.score;}
+  function renderOverlay(points){
+    const w=video.videoWidth,h=video.videoHeight;if(overlay.width!==w||overlay.height!==h){overlay.width=w;overlay.height=h;}
+    overlayCtx.clearRect(0,0,w,h);const b=bounds(points),fh=b.maxY-b.minY,fw=b.maxX-b.minX,gap=Math.abs(points[263].x-points[33].x);
+    const rw=gap*.34,rh=fh*.06,y=(points[145].y+points[374].y)/2+fh*.035;
+    overlayCtx.strokeStyle='#70d6c3';overlayCtx.lineWidth=Math.max(2,w/520);
+    [points[33],points[263]].forEach(p=>overlayCtx.strokeRect((p.x-rw/2)*w,y*h,rw*w,rh*h));
+    const roi={x:clamp((b.minX+b.maxX)/2-fw*1.05,0,1),y:clamp(b.maxY+fh*.13,0,1),w:clamp(fw*2.1,.08,.95),h:clamp(fh*1.1,.06,.55)};
+    overlayCtx.strokeStyle='#7ad0ff';overlayCtx.setLineDash([7,6]);overlayCtx.strokeRect(roi.x*w,roi.y*h,Math.min(roi.w,1-roi.x)*w,Math.min(roi.h,1-roi.y)*h);overlayCtx.setLineDash([]);return roi;
+  }
+  async function loadDetector(){
+    if(landmarker)return landmarker;
+    if(!detectorPromise)detectorPromise=(async()=>{
+      const {FaceLandmarker,FilesetResolver}=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14');
+      const vision=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+      landmarker=await FaceLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true});
       return landmarker;
+    })().catch(e=>{detectorPromise=null;throw e;});
+    return detectorPromise;
+  }
+  const samplingCanvas=document.createElement('canvas');samplingCanvas.width=96;samplingCanvas.height=72;
+  const samplingCtx=samplingCanvas.getContext('2d',{willReadFrequently:true});
+  function sampleBrightness(roi){
+    samplingCtx.drawImage(video,0,0,96,72);const x=clamp(Math.floor(roi.x*96),0,95),y=clamp(Math.floor(roi.y*72),0,71);
+    const w=clamp(Math.floor(Math.min(roi.w,1-roi.x)*96),1,96-x),h=clamp(Math.floor(Math.min(roi.h,1-roi.y)*72),1,72-y);if(w<5||h<5)return null;
+    const d=samplingCtx.getImageData(x,y,w,h).data;let sum=0,n=0;for(let i=0;i<d.length;i+=4){sum+=.299*d[i]+.587*d[i+1]+.114*d[i+2];n++;}return n?sum/n:null;
+  }
+  function sampleRgb(points){
+    const b=bounds(points),fh=b.maxY-b.minY,gap=Math.abs(points[263].x-points[33].x),pw=Math.max(4,Math.round(gap*96*.14)),ph=Math.max(3,Math.round(fh*72*.035));
+    const y=clamp((points[145].y+points[374].y)/2+fh*.04,0,1)*72;let r=0,g=0,bl=0,n=0;
+    for(const eyeX of [points[33].x,points[263].x]){
+      const x=clamp(Math.round(eyeX*96-pw/2),0,96-pw),yy=clamp(Math.round(y),0,72-ph);
+      const d=samplingCtx.getImageData(x,yy,pw,ph).data;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];bl+=d[i+2];n++;}
     }
-
-    function samplePeriocularRGB(points) {
-      const w = video.videoWidth || 640;
-      const h = video.videoHeight || 480;
-      const bounds = faceBounds(points);
-      const faceH = bounds.maxY - bounds.minY;
-      const eyeGap = Math.abs(points[263].x - points[33].x);
-      const targetW = Math.max(4, Math.round(eyeGap * w * 0.18));
-      const targetH = Math.max(3, Math.round(faceH * h * 0.045));
-
-      const temp = document.createElement('canvas');
-      temp.width = targetW * 2;
-      temp.height = targetH;
-      const ctx = temp.getContext('2d', { willReadFrequently: true });
-      const y = clamp((points[145].y + points[374].y) / 2 + faceH * 0.035, 0, 1) * h;
-
-      let r = 0, g = 0, b = 0, n = 0;
-      for (const xCenter of [points[33].x * w, points[263].x * w]) {
-        const x = clamp(Math.round(xCenter - targetW / 2), 0, w - targetW);
-        const yy = clamp(Math.round(y), 0, h - targetH);
-        const data = ctx.getImageData ? null : null;
-        const source = document.createElement('canvas');
-        source.width = targetW;
-        source.height = targetH;
-        const sc = source.getContext('2d', { willReadFrequently: true });
-        sc.drawImage(video, x, yy, targetW, targetH, 0, 0, targetW, targetH);
-        const img = sc.getImageData(0, 0, targetW, targetH).data;
-        for (let i = 0; i < img.length; i += 4) {
-          r += img[i];
-          g += img[i + 1];
-          b += img[i + 2];
-          n += 1;
-        }
-      }
-      if (n) {
-        $('skinRgb').textContent = `${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)}`;
-      }
+    if(n){latestRgb=[r/n,g/n,bl/n];$('monitorRgb').textContent=latestRgb.map(Math.round).join(', ');}
+  }
+  function estimateBreathing(samples){
+    if(samples.length<60)return null;
+    const values=samples.slice(-120).map(s=>s.value),m=mean(values),centered=values.map(v=>v-m);
+    const detrended=centered.map((v,i)=>{const a=Math.max(0,i-12),b=Math.min(centered.length-1,i+12);return v-mean(centered.slice(a,b+1));});
+    let energy=0;for(const x of detrended)energy+=x*x;if(energy/detrended.length<1.2)return null;
+    let best={corr:-1,lag:0};const minLag=SAMPLE_HZ*2,maxLag=Math.min(SAMPLE_HZ*10,Math.floor(detrended.length/2));
+    for(let lag=minLag;lag<=maxLag;lag++){let xy=0,xx=0,yy=0;for(let i=lag;i<detrended.length;i++){const a=detrended[i],b=detrended[i-lag];xy+=a*b;xx+=a*a;yy+=b*b;}const corr=xy/Math.sqrt(xx*yy||1);if(corr>best.corr)best={corr,lag};}
+    if(best.corr<.28||!best.lag)return null;const bpm=60*SAMPLE_HZ/best.lag;return bpm>=6&&bpm<=30?{bpm,corr:best.corr}:null;
+  }
+  function updateEyeMetrics(result,points,now,dt){
+    const currentEar=(ear(points,LEFT_EYE)+ear(points,RIGHT_EYE))/2;
+    const left=faceBlend(result,'eyeBlinkLeft'),right=faceBlend(result,'eyeBlinkRight');
+    const usingBlend=Number.isFinite(left)&&Number.isFinite(right);
+    const isClosed=usingBlend?((left+right)/2>.60):(eyeBaseline!==null&&currentEar<eyeBaseline*.72);
+    if(!usingBlend&&!isClosed)eyeBaseline=eyeBaseline===null?currentEar:eyeBaseline*.98+currentEar*.02;
+    eyeSamples.push({t:now,ear:currentEar,closed:isClosed,dt});eyeSamples=eyeSamples.filter(s=>now-s.t<=WINDOW_MS);
+    monitorValidMs+=dt;if(isClosed)monitorClosedMs+=dt;
+    if(isClosed){if(!closedNow)closureStart=now;closedNow=true;}
+    else if(closedNow){
+      const duration=now-closureStart;closedNow=false;
+      if(duration>=50&&duration<=2000){monitorBlinks++;monitorClosures.push({t:now,duration});monitorClosures=monitorClosures.filter(c=>now-c.t<=WINDOW_MS);if(analysis&&closureStart>=analysis.start){analysis.blinks++;analysis.closures.push(duration);}}
+      closureStart=null;
     }
-
-    function sampleChestBrightness(rect) {
-      const w = video.videoWidth || 640;
-      const h = video.videoHeight || 480;
-      const x = clamp(Math.floor(rect.x * w), 0, w - 1);
-      const y = clamp(Math.floor(rect.y * h), 0, h - 1);
-      const rw = clamp(Math.floor(rect.w * w), 10, w - x);
-      const rh = clamp(Math.floor(rect.h * h), 10, h - y);
-
-      const temp = document.createElement('canvas');
-      temp.width = rw;
-      temp.height = rh;
-      const ctx = temp.getContext('2d', { willReadFrequently: true });
-      ctx.drawImage(video, x, y, rw, rh, 0, 0, rw, rh);
-      const img = ctx.getImageData(0, 0, rw, rh).data;
-      let total = 0;
-      let count = 0;
-      for (let i = 0; i < img.length; i += 4) {
-        total += 0.299 * img[i] + 0.587 * img[i + 1] + 0.114 * img[i + 2];
-        count += 1;
-      }
-      return count ? total / count : null;
+    $('monitorBlinks').textContent=String(monitorBlinks);
+    const rolling=monitorClosures.length;$('monitorBlinkRate').textContent=`${rolling} / min`;
+    const valid=eyeSamples.reduce((s,x)=>s+x.dt,0),closed=eyeSamples.reduce((s,x)=>s+(x.closed?x.dt:0),0);
+    $('monitorPerclos').textContent=valid?`${(100*closed/valid).toFixed(1)}%`:'—';
+    const closureWindow=monitorClosures.map(c=>c.duration);$('monitorAecd').textContent=closureWindow.length?`${mean(closureWindow).toFixed(0)} ms`:'—';
+    $('monitorEar').textContent=currentEar.toFixed(3);
+    if(analysis){analysis.validMs+=dt;if(isClosed)analysis.closedMs+=dt;analysis.ear.push({t:now,value:currentEar});}
+    return currentEar;
+  }
+  function updateHead(points,now){
+    const b=bounds(points),fw=b.maxX-b.minX||1,fh=b.maxY-b.minY||1,left=points[33],right=points[263];
+    latestRoll=Math.atan2(right.y-left.y,right.x-left.x)*180/Math.PI;
+    const nose=points[1];headSamples.push({t:now,x:(nose.x-(b.minX+b.maxX)/2)/fw,y:(nose.y-b.minY)/fh});headSamples=headSamples.filter(s=>now-s.t<=15000);
+    if(headSamples.length>=10){const mx=mean(headSamples.map(s=>s.x)),my=mean(headSamples.map(s=>s.y));latestMotion=Math.sqrt(mean(headSamples.map(s=>(s.x-mx)**2+(s.y-my)**2)));}
+    $('monitorRoll').textContent=`${latestRoll.toFixed(1)}°`;$('monitorHeadMotion').textContent=latestMotion===null?'—':latestMotion.toFixed(3);
+  }
+  function updateAnalysisReadouts(now){
+    if(!analysis)return;
+    const n=Math.max(.001,(now-analysis.start)/60000),p=analysis.validMs?100*analysis.closedMs/analysis.validMs:null;
+    $('analysisBlinks').textContent=String(analysis.blinks);$('analysisBlinkRate').textContent=`${(analysis.blinks/n).toFixed(1)} / min`;
+    $('analysisPerclos').textContent=p===null?'—':`${p.toFixed(1)}%`;
+    $('analysisAecd').textContent=analysis.closures.length?`${mean(analysis.closures).toFixed(0)} ms`:'—';
+    $('analysisTimer').textContent=`${Math.max(0,Math.ceil((ANALYSIS_MS-(now-analysis.start))/1000))} s`;
+  }
+  function updateFrame(){
+    if(!running)return;const now=performance.now();
+    if(video.readyState>=2&&video.videoWidth&&landmarker){
+      try{
+        const result=landmarker.detectForVideo(video,now);
+        if(result.faceLandmarks?.length){
+          const points=result.faceLandmarks[0],dt=previousFrameTime?Math.min(now-previousFrameTime,100):0;previousFrameTime=now;
+          const currentEar=updateEyeMetrics(result,points,now,dt),roi=renderOverlay(points);
+          updateHead(points,now);
+          $('monitorFace').textContent='Detectado';$('monitorFaceDetail').textContent='Rostro válido en esta muestra';
+          if(now-lastSampleTime>=SAMPLE_MS){lastSampleTime=now;const brightness=sampleBrightness(roi);if(brightness!==null){breathSamples.push({t:now,value:brightness});breathSamples=breathSamples.filter(s=>now-s.t<=30000);latestBreath=estimateBreathing(breathSamples);}}
+          $('monitorBreath').textContent=latestBreath?`${latestBreath.bpm.toFixed(1)} / min`:'—';$('monitorBreathDetail').textContent=latestBreath?`respiraciones/min · señal periódica ${latestBreath.corr.toFixed(2)}`:'respiraciones/min · señal insuficiente';
+          if(now-lastRgbTime>1000){sampleRgb(points);lastRgbTime=now;}
+          if(analysis&&latestBreath)analysis.breathValues.push(latestBreath.bpm);
+          if(analysis&&latestRoll!==null){analysis.rollValues.push(latestRoll);if(latestMotion!==null)analysis.motionValues.push(latestMotion);}
+          if(analysis)analysis.ear.push({t:now,value:currentEar});
+        }else{$('monitorFace').textContent='No detectado';$('monitorFaceDetail').textContent='Ajusta el encuadre';overlayCtx.clearRect(0,0,overlay.width,overlay.height);previousFrameTime=0;}
+      }catch(e){console.error(e);setStatus(`Error de análisis: ${e.message||e}`);}
     }
-
-    function estimateBreathing(history) {
-      if (history.length < 20) return null;
-      const vals = history.map((h) => h.value).slice(-120);
-      const meanValue = mean(vals) || 0;
-      const detrended = vals.map((v) => v - meanValue);
-      const minLag = Math.floor(SAMPLE_RATE * 2);
-      const maxLag = Math.min(Math.floor(SAMPLE_RATE * 8), detrended.length - 2);
-      let best = { corr: -1, lag: 0 };
-
-      for (let lag = minLag; lag <= maxLag; lag += 1) {
-        let xxy = 0, xx = 0, yy = 0;
-        for (let i = lag; i < detrended.length; i++) {
-          const a = detrended[i];
-          const b = detrended[i - lag];
-          xxy += a * b;
-          xx += a * a;
-          yy += b * b;
-        }
-        const corr = xx && yy ? xxy / Math.sqrt(xx * yy) : 0;
-        if (corr > best.corr) best = { corr, lag };
-      }
-
-      if (best.corr < 0.25 || best.lag === 0) return null;
-      const bpm = 60 * SAMPLE_RATE / best.lag;
-      if (bpm < 8 || bpm > 30) return null;
-      return { bpm, corr: best.corr };
-    }
-
-    function updateHeadMetrics(points, now) {
-      const left = points[33];
-      const right = points[263];
-      latestRoll = ((Math.atan2(right.y - left.y, right.x - left.x) * 180) / Math.PI);
-      const nose = points[1];
-      const bounds = faceBounds(points);
-      const faceW = bounds.maxX - bounds.minX || 1;
-      const faceH = bounds.maxY - bounds.minY || 1;
-      headHistory.push({ t: now, x: (nose.x - (bounds.minX + bounds.maxX) / 2) / faceW, y: (nose.y - bounds.minY) / faceH });
-      headHistory = headHistory.filter((h) => now - h.t <= 15000);
-      if (headHistory.length > 4) {
-        const xMean = mean(headHistory.map((h) => h.x));
-        const yMean = mean(headHistory.map((h) => h.y));
-        const variance = mean(headHistory.map((h) => (h.x - xMean) ** 2 + (h.y - yMean) ** 2));
-        latestHeadMotion = variance;
-      }
-      $('roll').textContent = `${latestRoll.toFixed(1)}°`;
-      $('headMotion').textContent = latestHeadMotion === null ? 'Calculando' : latestHeadMotion.toFixed(3);
-    }
-
-    function updateBlinkAndEyes(result, points, now, dt) {
-      const leftEar = computeEAR(points, LEFT_EYE);
-      const rightEar = computeEAR(points, RIGHT_EYE);
-      const avgEar = (leftEar + rightEar) / 2;
-      earHistory.push({ t: now, value: avgEar });
-      earHistory = earHistory.filter((h) => now - h.t <= 60000);
-      $('ear').textContent = avgEar.toFixed(3);
-
-      if (eyeOpenBaseline === null) eyeOpenBaseline = avgEar;
-      else eyeOpenBaseline = eyeOpenBaseline * 0.9 + avgEar * 0.1;
-
-      const blinkLeft = getFaceBlend(result, 'eyeBlinkLeft');
-      const blinkRight = getFaceBlend(result, 'eyeBlinkRight');
-      const closedByBlend = Number.isFinite(blinkLeft) && Number.isFinite(blinkRight) ? ((blinkLeft + blinkRight) / 2) > 0.60 : false;
-      const closedByEAR = avgEar < eyeOpenBaseline * 0.73;
-      const eyesClosed = closedByBlend || closedByEAR;
-
-      faceValidMs += dt;
-      if (eyesClosed) {
-        eyesClosedMs += dt;
-        if (closureStart === null) closureStart = now;
-      } else if (closureStart !== null) {
-        const closureMs = now - closureStart;
-        if (closureMs > 80 && closureMs < 1500) {
-          closureDurations.push(closureMs);
-          blinkCount += 1;
-        }
-        closureStart = null;
-      }
-
-      const minutes = Math.max(1, (now - sessionStart) / 60000);
-      $('blinkCount').textContent = String(blinkCount);
-      $('blinkRate').textContent = `${(blinkCount / minutes).toFixed(1)} por minuto`;
-      $('perclos').textContent = faceValidMs ? `${((eyesClosedMs / faceValidMs) * 100).toFixed(1)}%` : '—';
-      $('closureDuration').textContent = closureDurations.length ? `${Math.round(mean(closureDurations))} ms` : '—';
-      $('coverage').textContent = `${Math.min(100, Math.round((faceValidMs / Math.max(1, SESSION_MS)) * 100))}%`;
-      $('quality').textContent = faceValidMs > 0 ? 'Buena' : 'Sin detección';
-    }
-
-    function processFrame() {
-      if (!running) return;
-      const now = performance.now();
-
-      if (video.readyState >= 2 && video.videoWidth && landmarker) {
-        try {
-          const result = landmarker.detectForVideo(video, now);
-          if (result.faceLandmarks && result.faceLandmarks.length > 0) {
-            const points = result.faceLandmarks[0];
-            const dt = lastFrameTs ? now - lastFrameTs : 0;
-            lastFrameTs = now;
-            updateBlinkAndEyes(result, points, now, dt);
-            const chestRect = drawOverlay(points);
-            const chestBrightness = sampleChestBrightness(chestRect);
-            if (chestBrightness !== null) {
-              if (lastBrightness !== null) {
-                const delta = chestBrightness - lastBrightness;
-                if (Math.abs(delta) > 0.8) {
-                  opticalHistory.push({ t: now, value: delta });
-                  opticalHistory = opticalHistory.filter((h) => now - h.t <= 60000);
-                }
-              }
-              lastBrightness = chestBrightness;
-            }
-            latestBreath = estimateBreathing(opticalHistory);
-            $('breath').textContent = latestBreath ? `${latestBreath.bpm.toFixed(1)} / min` : '—';
-            $('breathDetail').textContent = latestBreath ? `Periodicidad óptica ${latestBreath.corr.toFixed(2)}` : 'Sin patrón respiratorio fiable';
-            updateHeadMetrics(points, now);
-            if (now - lastColorAt > 1000) {
-              samplePeriocularRGB(points);
-              lastColorAt = now;
-            }
-            $('sessionState').textContent = 'Capturando señales';
-            $('quality').textContent = 'Buena';
-          } else {
-            $('quality').textContent = 'Sin rostro';
-            $('sessionState').textContent = 'Ajusta el encuadre';
-          }
-        } catch (error) {
-          console.error(error);
-          setStatus(`Error de análisis: ${error.message || error}`);
-        }
-      }
-
-      drawChart();
-      const remaining = Math.max(0, Math.ceil((SESSION_MS - (now - sessionStart)) / 1000));
-      $('timer').textContent = `${remaining} s`;
-
-      if (now - sessionStart >= SESSION_MS) {
-        finishSession();
-        return;
-      }
-
-      rafId = requestAnimationFrame(processFrame);
-    }
-
-    function drawChart() {
-      const rect = chart.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const w = Math.max(320, Math.round(rect.width * dpr));
-      const h = Math.max(180, Math.round(220 * dpr));
-      if (chart.width !== w || chart.height !== h) {
-        chart.width = w;
-        chart.height = h;
-      }
-
-      chartCtx.clearRect(0, 0, w, h);
-      chartCtx.strokeStyle = 'rgba(255,255,255,.08)';
-      chartCtx.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const y = (h / 4) * i;
-        chartCtx.beginPath();
-        chartCtx.moveTo(0, y);
-        chartCtx.lineTo(w, y);
-        chartCtx.stroke();
-      }
-
-      const plotSeries = (series, color, keyFn, yMin, yMax) => {
-        if (!series.length) return;
-        chartCtx.beginPath();
-        chartCtx.strokeStyle = color;
-        chartCtx.lineWidth = 2;
-        const dur = Math.max(1, SESSION_MS);
-        series.forEach((point, index) => {
-          const x = ((point.t - sessionStart) / dur) * w;
-          const y = h - ((keyFn(point) - yMin) / (yMax - yMin || 1)) * (h * 0.8) - 10;
-          if (index === 0) chartCtx.moveTo(x, y);
-          else chartCtx.lineTo(x, y);
-        });
-        chartCtx.stroke();
-      };
-
-      const earMin = 0;
-      const earMax = 0.5;
-      const breathMin = -20;
-      const breathMax = 20;
-      if (earHistory.length) plotSeries(earHistory, '#70d6c3', (p) => p.value, earMin, earMax);
-      if (opticalHistory.length) plotSeries(opticalHistory, '#7ad0ff', (p) => p.value, breathMin, breathMax);
-    }
-
-    function computeSessionScore() {
-      const elapsedMinutes = Math.max(0.1, (performance.now() - sessionStart) / 60000);
-      const perclos = faceValidMs ? (eyesClosedMs / faceValidMs) * 100 : 0;
-      const ae = closureDurations.length ? mean(closureDurations) : 0;
-      const blinkRate = blinkCount / elapsedMinutes;
-      const breathRisk = latestBreath ? Math.min(100, Math.max(0, (Math.abs(latestBreath.bpm - 18) / 12) * 100)) : 0;
-      const perclosRisk = Math.min(100, Math.max(0, (perclos - 2) / 16 * 100));
-      const closureRisk = Math.min(100, Math.max(0, (ae - 120) / 350 * 100));
-      const blinkRisk = Math.min(100, Math.max(0, (blinkRate - 18) / 25 * 100));
-      const headRisk = latestHeadMotion !== null ? Math.min(100, Math.max(0, (latestHeadMotion - 0.01) / 0.05 * 100)) : 0;
-
-      const weighted = [
-        { weight: 0.30, risk: perclosRisk },
-        { weight: 0.25, risk: closureRisk },
-        { weight: 0.20, risk: blinkRisk },
-        { weight: 0.15, risk: breathRisk },
-        { weight: 0.10, risk: headRisk }
-      ];
-
-      const totalWeight = weighted.reduce((sum, x) => sum + x.weight, 0);
-      const risk = weighted.reduce((sum, x) => sum + (x.weight * x.risk), 0) / totalWeight;
-      const score = clamp(Math.round(100 - risk), 0, 100);
-      return { score, perclos, ae, blinkRate, breathRisk, headRisk };
-    }
-
-    function showReport() {
-      const { score, perclos, ae, blinkRate, breathRisk, headRisk } = computeSessionScore();
-      const coverage = Math.min(100, (faceValidMs / Math.max(1, SESSION_MS)) * 100);
-      const band = score >= 85 ? 'Óptimo' : score >= 70 ? 'Bueno' : score >= 50 ? 'Vigilancia' : score >= 25 ? 'Riesgo' : 'Crítico';
-
-      $('score').textContent = `${score}/100`;
-      $('scoreBand').textContent = band;
-      $('reportQuality').textContent = coverage >= 80 ? 'Buena' : coverage >= 60 ? 'Parcial' : 'Limitada';
-      $('reportCoverage').textContent = `Cobertura facial: ${coverage.toFixed(0)}% · sesión validada`;
-
-      const factors = [];
-      factors.push(`PERCLOS observado: ${perclos.toFixed(1)}% del tiempo con ojos cerrados.`);
-      factors.push(`Duración media de cierre: ${Math.round(ae)} ms (${closureDurations.length} cierres medidos).`);
-      factors.push(`Frecuencia de parpadeo: ${blinkRate.toFixed(1)} por minuto.`);
-      if (latestBreath) factors.push(`Respiración óptica estimada: ${latestBreath.bpm.toFixed(1)} / min.`);
-      else factors.push('Respiración: patrón no suficientemente estable para ser puntuado.');
-      if (latestHeadMotion !== null) factors.push(`Inclinación/estabilidad de cabeza: roll ${latestRoll !== null ? `${latestRoll.toFixed(1)}°` : 'n/d'} · variabilidad ${latestHeadMotion.toFixed(3)}.`);
-      factors.push('RGB periocular se mostró como contexto y fue excluido del índice por sensibilidad a iluminación y cámara.');
-
-      $('factors').replaceChildren(...factors.map((text) => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        return li;
-      }));
-
-      let profile = 'Sin patrón dominante';
-      if (perclos > 6 && blinkRate > 20) profile = 'Patrón ocular elevado';
-      else if (latestBreath && Math.abs(latestBreath.bpm - 18) > 6) profile = 'Señales de activación superior';
-      else if (latestHeadMotion !== null && latestHeadMotion > 0.02) profile = 'Inestabilidad postural observada';
-      else if (score >= 70) profile = 'Señales estables';
-      $('profile').textContent = profile;
-
-      $('recommendation').textContent = score >= 70
-        ? 'La sesión muestra señales relativamente estables. Mantén una vigilancia normal y repite la prueba si cambian las condiciones ambientales o operativas.'
-        : score >= 50
-          ? 'La sesión muestra señales moderadas que justifican revisarla en contexto y repetir la evaluación en un breve intervalo.'
-          : 'La sesión muestra signos elevados de degradación operativa o falta de estabilidad. Requiere evaluación más detallada y repetir la prueba en condiciones controladas.';
-
-      $('report').style.display = 'block';
-      $('report').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    async function startSession() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setStatus('No es posible acceder a la cámara');
-        return;
-      }
-
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false
-        });
-
-        video.srcObject = stream;
-        await video.play();
-        setStatus('Cámara activa · cargando detector');
-        await createDetector();
-        resetSession();
-        running = true;
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
-        rafId = requestAnimationFrame(processFrame);
-      } catch (error) {
-        console.error(error);
-        setStatus(`No se pudo iniciar la cámara (${error.name || 'Error'})`);
-      }
-    }
-
-    function resetSession() {
-      sessionStart = performance.now();
-      lastFrameTs = 0;
-      faceValidMs = 0;
-      eyesClosedMs = 0;
-      blinkCount = 0;
-      closureStart = null;
-      closureDurations = [];
-      earHistory = [];
-      opticalHistory = [];
-      headHistory = [];
-      lastBrightness = null;
-      latestBreath = null;
-      latestRoll = null;
-      latestHeadMotion = null;
-      eyeOpenBaseline = null;
-      $('report').style.display = 'none';
-      $('blinkCount').textContent = '0';
-      $('blinkRate').textContent = '— por minuto';
-      $('perclos').textContent = '—';
-      $('closureDuration').textContent = '—';
-      $('breath').textContent = '—';
-      $('breathDetail').textContent = 'Señal óptica experimental';
-      $('skinRgb').textContent = '—';
-      $('ear').textContent = '—';
-      $('roll').textContent = '—';
-      $('headMotion').textContent = '—';
-      $('coverage').textContent = '—';
-      $('quality').textContent = 'Esperando';
-      $('timer').textContent = '60 s';
-      $('sessionState').textContent = 'Capturando';
-      drawChart();
-    }
-
-    function stopSession() {
-      running = false;
-      if (rafId) cancelAnimationFrame(rafId);
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-        stream = null;
-      }
-      video.srcObject = null;
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-      setStatus('Captura detenida');
-      $('sessionState').textContent = 'Resultado parcial';
-      showReport();
-    }
-
-    function finishSession() {
-      running = false;
-      if (rafId) cancelAnimationFrame(rafId);
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-        stream = null;
-      }
-      video.srcObject = null;
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-      setStatus('Sesión completada');
-      $('sessionState').textContent = 'Sesión completada';
-      $('timer').textContent = '0 s';
-      showReport();
-    }
-
-    startBtn.addEventListener('click', startSession);
-    stopBtn.addEventListener('click', stopSession);
-    window.addEventListener('resize', drawChart);
-    window.addEventListener('beforeunload', () => {
-      if (stream) stream.getTracks().forEach((track) => track.stop());
-    });
-
-    drawChart();
-  </script>
+    updateAnalysisReadouts(now);drawChart();
+    if(analysis&&now-analysis.start>=ANALYSIS_MS)completeAnalysis();
+    raf=requestAnimationFrame(updateFrame);
+  }
+  function drawChart(){
+    const rect=chart.getBoundingClientRect(),dpr=devicePixelRatio||1,w=Math.max(320,Math.round(rect.width*dpr)),h=Math.max(160,Math.round(210*dpr));
+    if(chart.width!==w||chart.height!==h){chart.width=w;chart.height=h;}chartCtx.clearRect(0,0,w,h);
+    chartCtx.strokeStyle='#ffffff12';for(let i=0;i<=4;i++){const y=h*i/4;chartCtx.beginPath();chartCtx.moveTo(0,y);chartCtx.lineTo(w,y);chartCtx.stroke();}
+    const now=performance.now(),from=now-WINDOW_MS;
+    const plot=(arr,color,fn,min,max)=>{const data=arr.filter(x=>x.t>=from);if(data.length<2)return;chartCtx.beginPath();chartCtx.strokeStyle=color;chartCtx.lineWidth=2*dpr;data.forEach((p,i)=>{const x=((p.t-from)/WINDOW_MS)*w,y=h-((fn(p)-min)/(max-min))*(h*.8)-h*.1;if(!i)chartCtx.moveTo(x,y);else chartCtx.lineTo(x,y);});chartCtx.stroke();};
+    plot(eyeSamples,'#70d6c3',x=>x.ear,0,.5);plot(breathSamples,'#7ad0ff',x=>x.value,0,255);
+  }
+  function calculateReport(){
+    const duration=Math.max(1,performance.now()-analysis.start),perclos=analysis.validMs?100*analysis.closedMs/analysis.validMs:null;
+    const blinkRate=analysis.blinks/(duration/60000),aecd=mean(analysis.closures),breath=mean(analysis.breathValues),motion=mean(analysis.motionValues);
+    const components=[];
+    if(perclos!==null)components.push({name:'PERCLOS',weight:.30,risk:clamp((perclos-2)/13*100,0,100)});
+    if(aecd!==null)components.push({name:'AECD',weight:.25,risk:clamp((aecd-100)/300*100,0,100)});
+    if(analysis.blinks>0)components.push({name:'parpadeo',weight:.20,risk:clamp((blinkRate-20)/20*100,0,100)});
+    if(breath!==null)components.push({name:'respiración',weight:.15,risk:clamp((breath-18)/12*100,0,100)});
+    if(motion!==null)components.push({name:'movimiento cabeza',weight:.10,risk:clamp((motion-.015)/.08*100,0,100)});
+    const weights=components.reduce((s,c)=>s+c.weight,0),score=weights?Math.round(100-components.reduce((s,c)=>s+c.weight*c.risk,0)/weights):null;
+    return {score,perclos,aecd,blinkRate,breath,motion,blinks:analysis.blinks,coverage:100*analysis.validMs/duration,components:components.length,roll:mean(analysis.rollValues)};
+  }
+  function deltaText(current,previous,unit,precision=1){if(current===null||previous===null)return 'sin ambos datos';const d=current-previous;return `${d>0?'+':''}${d.toFixed(precision)} ${unit}`;}
+  function presentComparison(current){
+    const box=$('comparison');if(!previousReport){box.textContent='Este es el primer análisis de esta pestaña. El siguiente se comparará con este resultado.';return;}
+    const lines=[`Índice: ${deltaText(current.score,previousReport.score,'puntos',0)}`,`PERCLOS: ${deltaText(current.perclos,previousReport.perclos,'pp')}`,`Parpadeo: ${deltaText(current.blinkRate,previousReport.blinkRate,'/min')}`,`Cierre medio: ${deltaText(current.aecd,previousReport.aecd,'ms')}`,`Respiración: ${deltaText(current.breath,previousReport.breath,'resp/min')}`];
+    box.replaceChildren(...lines.map(text=>{const p=document.createElement('p');p.className='detail';p.textContent=text;return p;}));
+  }
+  function completeAnalysis(){
+    if(!analysis)return;const result=calculateReport();
+    $('score').textContent=result.score===null?'—':`${result.score}/100`;
+    $('scoreBand').textContent=result.score===null?'Datos insuficientes':result.score>=85?'Pocas señales elevadas (heurística)':result.score>=70?'Algunas señales a revisar (heurística)':result.score>=50?'Varias señales a revisar (heurística)':'Múltiples señales elevadas (heurística)';
+    $('reportCoverage').textContent=`${result.coverage.toFixed(0)}% de tiempo con rostro válido`;$('reportComponents').textContent=`${result.components}/5 componentes disponibles · no es confianza`;
+    presentComparison(result);
+    const factors=[`Conteo en análisis: ${result.blinks} pestañeadas (${result.blinkRate.toFixed(1)} pestañeadas/min).`,result.perclos===null?'PERCLOS: sin datos suficientes.':`PERCLOS: ${result.perclos.toFixed(1)}%.`,result.aecd===null?'Duración de cierre: no hubo cierres medibles.':`Duración media de cierre (AECD): ${result.aecd.toFixed(0)} ms.`,result.breath===null?'Respiración: señal periódica insuficiente; excluida del índice.':`Respiración óptica estimada: ${result.breath.toFixed(1)} respiraciones/min.`,result.roll===null?'Inclinación: sin datos.':`Roll medio: ${result.roll.toFixed(1)}°; movimiento de cabeza proxy: ${result.motion===null?'n/d':result.motion.toFixed(3)} (adimensional).`,'RGB periocular queda excluido del índice.'];
+    $('factors').replaceChildren(...factors.map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));
+    $('recommendation').textContent='Este resumen compara señales observadas, no diagnostica fatiga o estrés. Revisa la calidad de captura y el contexto; sigue los procedimientos de tu equipo para decisiones relacionadas con la salud o tareas críticas.';
+    $('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
+    previousReport=result;analysis=null;$('analysisBtn').disabled=false;$('analysisState').textContent='Análisis completado · monitor continúa';$('analysisTimer').textContent='Listo para repetir';$('comparisonStatus').textContent='El siguiente análisis se comparará con el informe anterior. El historial se conserva solo en memoria mientras esta página siga abierta.';setStatus('Análisis completado; monitorización en vivo continúa.');
+  }
+  function startAnalysis(){
+    if(!running||analysis)return;analysis={start:performance.now(),blinks:0,validMs:0,closedMs:0,closures:[],breathValues:[],rollValues:[],motionValues:[],ear:[]};
+    $('report').style.display='none';$('analysisBtn').disabled=true;$('analysisState').textContent='Capturando ventana de análisis';$('analysisTimer').textContent='60 s';setStatus('Monitor activo · análisis en curso (60 s)');
+  }
+  async function startMonitor(){
+    if(!navigator.mediaDevices?.getUserMedia){setStatus('Cámara no disponible. Usa HTTPS o localhost.');return;}
+    $('monitorBtn').disabled=true;setStatus('Solicitando cámara…');
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();setStatus('Cámara activa; cargando detector…');await loadDetector();
+      running=true;monitorStart=performance.now();previousFrameTime=0;lastSampleTime=0;monitorBlinks=0;monitorClosures=[];monitorClosedMs=0;monitorValidMs=0;eyeSamples=[];breathSamples=[];headSamples=[];eyeBaseline=null;latestBreath=null;latestMotion=null;latestRoll=null;latestRgb=null;analysis=null;previousReport=null;
+      $('monitorBlinks').textContent='0';$('monitorBlinkRate').textContent='0 / min';$('monitorPerclos').textContent='—';$('monitorAecd').textContent='—';$('monitorBreath').textContent='—';$('monitorEar').textContent='—';$('monitorRoll').textContent='—';$('monitorHeadMotion').textContent='—';$('monitorRgb').textContent='—';$('monitorFace').textContent='Esperando';$('analysisBtn').disabled=false;$('stopBtn').disabled=false;$('monitorBtn').disabled=true;$('analysisState').textContent='Listo';$('analysisTimer').textContent='Listo';$('report').style.display='none';
+      setStatus('Monitorización continua activa. Inicia un análisis de 60 segundos cuando quieras.');raf=requestAnimationFrame(updateFrame);
+    }catch(error){console.error(error);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;$('monitorBtn').disabled=false;setStatus(`No se pudo iniciar (${error.name||'Error'}): ${error.message||''}`);}
+  }
+  function stopMonitor(){running=false;if(raf)cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;analysis=null;$('monitorBtn').disabled=false;$('analysisBtn').disabled=true;$('stopBtn').disabled=true;$('analysisState').textContent='Monitor detenido';$('analysisTimer').textContent='—';setStatus('Monitor detenido.');overlayCtx.clearRect(0,0,overlay.width,overlay.height);}
+  $('monitorBtn').addEventListener('click',startMonitor);$('analysisBtn').addEventListener('click',startAnalysis);$('stopBtn').addEventListener('click',stopMonitor);window.addEventListener('resize',drawChart);window.addEventListener('beforeunload',()=>{if(stream)stream.getTracks().forEach(t=>t.stop());});drawChart();
+</script>
 </body>
 </html>
